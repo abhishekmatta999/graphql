@@ -21,7 +21,7 @@ const run = async () => {
 
     // The ApolloServer constructor requires two parameters: your schema
     // definition and your set of resolvers.
-    const server = new ApolloServer({
+    const server = new ApolloServer<MyContext>({
         typeDefs,
         resolvers,
         
@@ -33,33 +33,33 @@ const run = async () => {
     //  3. prepares your app to handle incoming requests
     const { url } = await startStandaloneServer(server, {
         listen: { port: 4000 },
-        // context: async ({ req }) => {
+        context: async ({ req }) => {
 
-        //     console.log('req--->>>', req);
-        //     // get the user token from the headers
-        //     const token = req.headers.authorization || '';
+            console.log('req--->>>', req);
+            // get the user token from the headers
+            const token = req.headers.authorization || '';
         
-        //     // try to retrieve a user with the token
-        //     const user = await validateToken(token);
-        //     console.log('user', user);
+            // try to retrieve a user with the token
+            const user = await validateToken(token);
+            console.log('user', user);
         
-        //     // optionally block the user
-        //     // we could also check user roles/permissions here
-        //     if (!user)
-        //       // throwing a `GraphQLError` here allows us to specify an HTTP status code,
-        //       // standard `Error`s will have a 500 status code by default
-        //       throw new GraphQLError('User is not authenticated', {
-        //         extensions: {
-        //           code: 'UNAUTHENTICATED',
-        //           http: { status: 401 },
-        //         },
-        //       });
+            // optionally block the user
+            // we could also check user roles/permissions here
+            if (!user)
+              // throwing a `GraphQLError` here allows us to specify an HTTP status code,
+              // standard `Error`s will have a 500 status code by default
+              throw new GraphQLError('User is not authenticated', {
+                extensions: {
+                  code: 'UNAUTHENTICATED',
+                  http: { status: 401 },
+                },
+              });
         
-        //     // add the user to the context
-        //     const context = { user };
-        //     console.log('Context:', context);
-        //     return context;
-        //   },
+            // add the user to the context
+            const context = { user };
+            console.log('Context:', context);
+            return context;
+          },
     });
     
     console.log(`🚀  Server ready at: ${url}`);
