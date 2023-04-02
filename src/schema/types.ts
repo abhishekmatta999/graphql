@@ -12,6 +12,7 @@ export interface Review {
     userId?: number;
     rating?: number;
     comment?: string;
+    createdAt: Date;
 }
   
 export interface SignupArgs {

@@ -1,17 +1,4 @@
-import { GraphQLSchema, GraphQLDirective, DirectiveLocation } from 'graphql';
-
-const AuthDirective = new GraphQLDirective({
-  name: 'auth',
-  locations: [DirectiveLocation.FIELD_DEFINITION],
-});
-
-const schema = new GraphQLSchema({
-  // your schema definition here
-  directives: [AuthDirective],
-});
-
 export const typeDefs = `
-directive @auth on FIELD_DEFINITION
 
   type Movie {
     id: ID!
@@ -65,7 +52,7 @@ directive @auth on FIELD_DEFINITION
   }
 
   type Query {
-    movies(limit: Int = 10, offset: Int = 0, search: String): MovieList @auth,
+    movies(limit: Int = 10, offset: Int = 0, search: String): MovieList,
     movie(id: ID!): Movie
     PaginatedReviews(movieId: Int!, page: Int!, perPage: Int!): PaginatedReview!
   }

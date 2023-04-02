@@ -1,3 +1,4 @@
+import { errorConstants } from "../../constants/errorConstants";
 import Movies from "../models/movies";
 import Reviews from "../models/reviews";
 import Users from "../models/users";
@@ -9,13 +10,13 @@ export const addMovieReviewService = async ({ movieId, userId, rating, comment }
     const movie = await Movies.findByPk(movieId);
 
     if (!movie) {
-        throw new Error(`Invalid movie id ${movieId}`);
+        throw new Error(errorConstants.MOVIE_DOES_NOT_EXIST);
     }
 
     const user = await Users.findByPk(userId);
 
     if (!user) {
-        throw new Error(`Invalid User ${userId}`);
+        throw new Error(errorConstants.USER_NOT_FOUND);
     }
 
     const review = Reviews.create({ movieId, userId, rating, comment });
@@ -23,29 +24,40 @@ export const addMovieReviewService = async ({ movieId, userId, rating, comment }
     return review || {};
 }
 
-export const editReviewService = async ({ id, movieId, userId, rating, comment }: {id: number, movieId: number, userId: number, rating: number, comment: string }) => {
+export const editReviewService = async ({ id, movieId, userId, rating, comment }: {id: number, movieId: number, userId: number, rating: number, comment: string }, context: any) => {
+
+    const { user } = context;
 
     // find movie review
-    const review = await Reviews.findByPk(id);
+    const review = await Reviews.findOne({where: {
+        id,
+        userId: user.id
+    }});
    
     // if review not present throw error.
     if (!review) {
-        throw new Error(`Review with ID ${id} not found.`);
+        throw new Error(errorConstants.REVEIW_DOES_NOT_EXIST);
     }
 
     return review.update({ movieId, userId, rating, comment });
 }
 
-export const deletMovieReviewService = async ({ id }: {id: number}) => {
-    // find reveiw
-    const reveiw = await Reviews.findByPk(id);
+export const deletMovieReviewService = async ({ id }: {id: number}, context: any) => {
+    const { user } = context;
 
-    if (!reveiw) {
-        throw new Error(`Review with ID ${id} not found. please send the correct id`);
+    // find movie review
+    const review = await Reviews.findOne({where: {
+        id,
+        userId: user.id
+    }});
+
+    // if review not present throw error.
+    if (!review) {
+        throw new Error(errorConstants.REVEIW_DOES_NOT_EXIST);
     }
 
-    // delet reveiw
-    await reveiw.destroy();
+    // delet review
+    await review.destroy();
 
     return { success: true };
 }
@@ -55,35 +67,56 @@ export const deletMovieReviewService = async ({ id }: {id: number}) => {
  * @param param0 
  * @returns list of review per movie
  */
-export const getMovieReviewList = async ({ movieId, page, perPage }: {movieId: number, page: number, perPage: number}) => {
-    const startIndex = (page - 1) * perPage;
-    // const endIndex = startIndex + perPage;
+export const getMovieReviewList = async ({ movieId, page, perPage }: {movieId: number, page: number, perPage: number}, context: any) => {
+  const { user } = context;
+  const startIndex = (page - 1) * perPage;
 
-    const total =  await Reviews.count({
-        where: {
-            movieId: {
-                [Op.eq]: movieId
-            }
-        }
-    });
+  const userReview = await Reviews.findOne({
+    where: {
+      movieId: {
+        [Op.eq]: movieId
+      },
+      userId: {
+        [Op.eq]: user?.id || null // set to null if user is not logged in
+      }
+    },
+    offset: startIndex
+  });
 
-    const reviews = await Reviews.findAll({
-        where: {
-            movieId: {
-                [Op.eq]: movieId
-            }
-        },
-        limit: perPage, offset: startIndex
-    });
-    
-    // const total = reviewsForMovie.length;
-    const totalPages = Math.ceil(total / perPage);
-    const currentPage = page;
-    return {
-        total,
-        totalPages,
-        currentPage,
-        perPage,
-        reviews,
-    };
-}
+  let remainingReviews = await Reviews.findAll({
+    where: {
+      movieId: {
+        [Op.eq]: movieId
+      },
+      userId: {
+        [Op.ne]: user?.id || null // exclude user's review from remaining reviews
+      }
+    },
+    limit: perPage,
+    offset: startIndex
+  });
+
+  if (userReview) {
+    // Add user's review to beginning of reviews array
+    remainingReviews.unshift(userReview);
+  }
+
+  const total = await Reviews.count({
+    where: {
+      movieId: {
+        [Op.eq]: movieId
+      }
+    }
+  });
+
+  const totalPages = Math.ceil(total / perPage);
+  const currentPage = page;
+
+  return {
+    total,
+    totalPages,
+    currentPage,
+    perPage,
+    reviews: remainingReviews
+  };
+};
