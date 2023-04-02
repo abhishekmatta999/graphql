@@ -2,9 +2,15 @@ import Users from "../models/users";
 import { SignupArgs, userType } from "../schema/types";
 import { getToken } from "../../lib/jwt";
 import { comparePasswords, createEncryptedHash } from "../../lib/bcrypt";
+import { validateEmail, validatePassWord } from "../validations/userValidations";
+import { errorConstants } from "../../constants/errorConstants";
 
 export const signupUser = async (args: SignupArgs): Promise<any> => {
     const { email, password } = args;
+
+    if (!validateEmail(email)) {
+      throw new Error(errorConstants.INVALID_EMAIL);
+    }
   
     // Find user
     const user = await Users.findOne({
@@ -35,13 +41,23 @@ export const signupUser = async (args: SignupArgs): Promise<any> => {
  */
 export const loginUser = async (args: { email: string, password: string }): Promise<{ token: string }> => {
     const { email, password } = args;
+
+    // validate email
+    if (!validateEmail(email)) {
+      throw new Error(errorConstants.INVALID_EMAIL);
+    }
+
+    // validate password
+    if (!validatePassWord(password)) {
+      throw new Error(errorConstants.INVALID_PASSWORD_PATTERN);
+    }
   
     // Find user by email
     const user = await Users.findOne({ where: { email } }) as any as userType;
   
     // not able to find user
     if (!user) {
-      throw new Error('User with this email does not exist');
+      throw new Error(errorConstants.USER_WITH_EMAIL_NOT_FOUND);
     }
 
     // validate passwords
@@ -49,7 +65,7 @@ export const loginUser = async (args: { email: string, password: string }): Prom
   
     // if password is not valid, throw error
     if (!isPasswordValid) {
-      throw new Error('Invalid login credentials');
+      throw new Error(errorConstants.INVALID_LOGIN_CREDENTIALS);
     }
   
     // Create a JWT token with user's ID and email
@@ -63,10 +79,17 @@ export const loginUser = async (args: { email: string, password: string }): Prom
  * const login API 
  * @param args 
  */
-export const changePassword = async ({ id, oldPassword, newPassword }: {id: number, oldPassword: string, newPassword: string}) => {
+export const changePassword = async ({ id, oldPassword, newPassword }: {id: number, oldPassword: string, newPassword: string}, context: any) => {
+    const { user } = context;
+
+    // validate password
+    if (!validatePassWord(newPassword)) {
+      throw new Error(errorConstants.INVALID_PASSWORD_PATTERN);
+    }
+    
     // Retrieve the user by ID from the database
-    const user = await Users.findByPk(id) as any as userType;
-    if (!user) {
+    const userProfile = await Users.findByPk(id) as any as userType;
+    if (!userProfile || user.id !== id) {
       throw new Error(`User with ID ${id} not found`);
     }
 
@@ -75,7 +98,7 @@ export const changePassword = async ({ id, oldPassword, newPassword }: {id: numb
 
     // if password is not valid, throw error
     if (!isPasswordValid) {
-        throw new Error('Invalid password');
+      throw new Error(errorConstants.INVALID_PASSWORD);
     }
 
     // create hashed password
