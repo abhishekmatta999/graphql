@@ -6,7 +6,7 @@ import * as db from "./db";
 import { validateToken } from '../lib/jwt';
 import { tokenType } from './schema/types';
 
-interface MyContext {
+interface UserContext {
     user: tokenType;
   }
   
@@ -19,7 +19,7 @@ const run = async () => {
 
     // The ApolloServer constructor requires two parameters: your schema
     // definition and your set of resolvers.
-    const server = new ApolloServer<MyContext>({
+    const server = new ApolloServer<UserContext>({
         typeDefs,
         resolvers,
         

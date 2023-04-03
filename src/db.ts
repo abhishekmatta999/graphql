@@ -1,17 +1,14 @@
 import { Sequelize } from "sequelize";
 
-// const sequelize = new Sequelize("postgres://postgres:hrhk@localhost:5432/movies");
-
 const sequelize = new Sequelize('movies', 'postgres', 'hrhk', {
     host: 'localhost',
     dialect: 'postgres'
   });
 
-const connect = () => {
+const connect = async () => {
     try {
-        sequelize.authenticate().then(() => {
-            console.log("Postgres connection has been established successfully.");
-        });
+        await sequelize.authenticate();
+        console.log("Postgres connection has been established successfully.");
     } catch (error) {
         console.error("Unable to connect to the database:", error);
     }
