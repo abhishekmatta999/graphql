@@ -1,17 +1,22 @@
 import { Sequelize } from "sequelize";
+import * as dotenv from 'dotenv';
+import path from 'path';
 
-// const sequelize = new Sequelize("postgres://postgres:hrhk@localhost:5432/movies");
+// env path
+const envPath = path.resolve(__dirname, '..', '.env');
 
-const sequelize = new Sequelize('movies', 'postgres', 'hrhk', {
+// initialise dotenv
+dotenv.config({ path: envPath });
+
+const sequelize = new Sequelize(process.env.DB_NAME as string, process.env.USER_NAME as string, process.env.DB_PASSWORD as string, {
     host: 'localhost',
     dialect: 'postgres'
-  });
+});
 
-const connect = () => {
+const connect = async () => {
     try {
-        sequelize.authenticate().then(() => {
-            console.log("Postgres connection has been established successfully.");
-        });
+        await sequelize.authenticate();
+        console.log("Postgres connection has been established successfully.");
     } catch (error) {
         console.error("Unable to connect to the database:", error);
     }
