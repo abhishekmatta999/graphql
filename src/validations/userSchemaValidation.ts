@@ -7,6 +7,7 @@ export const signupSchema = {
         type: "string", 
         minLength: 3, 
         maxLength: 50,
+        transform: ["trim"],
         errorMessage: {
             type: typeErrorMessage('First name'),
             minLength: minLengthErrorMessage('First name', 3),
@@ -17,6 +18,7 @@ export const signupSchema = {
         type: "string", 
         minLength: 3, 
         maxLength: 50, 
+        transform: ["trim"],
         errorMessage: {
             type: typeErrorMessage('Last name'),
             minLength: minLengthErrorMessage('Last name', 3),
@@ -27,6 +29,7 @@ export const signupSchema = {
         type: "string", 
         minLength: 3,
         maxLength: 50,
+        transform: ["trim"],
         errorMessage: {
             type: typeErrorMessage('Username'),
             minLength: minLengthErrorMessage('Username', 3),
@@ -36,6 +39,7 @@ export const signupSchema = {
       email: {
         type: "string", 
         format: "email",
+        transform: ["trim"],
         errorMessage: {
             type: typeErrorMessage('Email'),
             format: patternErrorMessage('Email'),
@@ -45,12 +49,13 @@ export const signupSchema = {
         type: "string", 
         minLength: 8,
         maxLength: 100,
+        transform: ["trim"],
         pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).{8,}$",
         errorMessage: {
             type: typeErrorMessage('Password'),
             minLength: minLengthErrorMessage('Password', 8),
             maxLength: maxLengthErrorMessage('Password', 100),
-            pattern: patternErrorMessage('Password')
+            pattern: `Incorrect password: password should contain atleast one uppercase, atleast one alpha-numeric and atleast one lowercase character.`
         }
       },
     },
@@ -78,7 +83,7 @@ export const loginSchema = {
             type: typeErrorMessage('Password'),
             minLength: minLengthErrorMessage('Password', 8),
             maxLength: maxLengthErrorMessage('Password', 100),
-            pattern: patternErrorMessage('Password')
+            pattern: `Incorrect password: password should contain atleast one uppercase, atleast one alpha-numeric and atleast one lowercase character.`
         }
       },
     },
@@ -89,13 +94,6 @@ export const loginSchema = {
 export const changePasswordSchema = {
   type: "object",
   properties: {
-    id: {
-      type: 'number', 
-      nullable: false,
-      errorMessage: {
-          type: typeErrorMessage('Id'),
-      }
-  },
     oldPassword: {
       type: "string", 
       minLength: 8,
@@ -105,22 +103,23 @@ export const changePasswordSchema = {
           type: typeErrorMessage('oldPassword'),
           minLength: minLengthErrorMessage('oldPassword', 8),
           maxLength: maxLengthErrorMessage('oldPassword', 100),
-          pattern: patternErrorMessage('oldPassword')
+          pattern: `Incorrect password: password should contain atleast one uppercase, atleast one alpha-numeric and atleast one lowercase character.`
       }
     },
     newPassword: {
       type: "string", 
       minLength: 8,
       maxLength: 100,
+      transform: ["trim"],
       pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).{8,}$",
       errorMessage: {
           type: typeErrorMessage('newPassword'),
           minLength: minLengthErrorMessage('newPassword', 8),
           maxLength: maxLengthErrorMessage('newPassword', 100),
-          pattern: patternErrorMessage('newPassword')
+          pattern: `Incorrect password: password should contain atleast one uppercase, atleast one alpha-numeric and atleast one lowercase character.`
       }
     },
   },
-  required: ["newPassword", "oldPassword", "id"],
+  required: ["newPassword", "oldPassword"],
   additionalProperties: false,
 };

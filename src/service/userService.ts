@@ -1,12 +1,12 @@
 import Users from "../models/users";
-import { SignupArgs, userType } from "../schema/types";
+import { ISignupArgs, IUserType } from "../schema/types";
 import { getToken } from "../../lib/jwt-helper";
 import { comparePasswords, createEncryptedHash } from "../../lib/bcrypt-helper";
 import { errorConstants } from "../../constants/errorConstants";
 import { changePasswordSchema, loginSchema, signupSchema } from "../validations/userSchemaValidation";
 import { validate } from "../../lib/validator";
 
-export const signupUser = async (args: SignupArgs): Promise<any> => {
+export const signupUser = async (args: ISignupArgs): Promise<any> => {
     const { email, password } = args;
 
     // validate schema
@@ -46,7 +46,7 @@ export const loginUser = async (args: { email: string, password: string }): Prom
     validate(loginSchema, args);
   
     // Find user by email
-    const user = await Users.findOne({ where: { email } }) as any as userType;
+    const user = await Users.findOne({ where: { email } }) as any as IUserType;
   
     // not able to find user
     if (!user) {
@@ -72,20 +72,20 @@ export const loginUser = async (args: { email: string, password: string }): Prom
  * const login API 
  * @param args 
  */
-export const changePassword = async ({ id, oldPassword, newPassword }: {id: number, oldPassword: string, newPassword: string}, context: any) => {
+export const changePassword = async ({ oldPassword, newPassword }: {oldPassword: string, newPassword: string}, context: any) => {
     const { user } = context;
 
     // validate schema
-    validate(changePasswordSchema, {id, oldPassword, newPassword});
+    validate(changePasswordSchema, {oldPassword, newPassword});
     
     // Retrieve the user by ID from the database
-    const userProfile = await Users.findByPk(id) as any as userType;
-    if (!userProfile || user.id !== id) {
-      throw new Error(`User with ID ${id} not found`);
+    const userProfile = await Users.findByPk(user.id) as any as IUserType;
+    if (!userProfile) {
+      throw new Error(`User with ID ${user.id} not found`);
     }
 
     // validate passwords
-    const isPasswordValid = await comparePasswords(oldPassword, user.password);
+    const isPasswordValid = await comparePasswords(oldPassword, userProfile.password);
 
     // if password is not valid, throw error
     if (!isPasswordValid) {
@@ -96,7 +96,7 @@ export const changePassword = async ({ id, oldPassword, newPassword }: {id: numb
     const hashedPassword = await createEncryptedHash(newPassword);
 
     // Update the user's password hash in the database
-    await Users.update({ password: hashedPassword}, { where: { id }, returning: true });
+    await Users.update({ password: hashedPassword}, { where: { id: user.id }, returning: true });
 
     return {success: true, message: 'Password updated successfully'};
 }

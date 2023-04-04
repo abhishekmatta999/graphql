@@ -6,10 +6,12 @@ import Users from "../models/users";
 import { addMovieReviewSchema, deleteMovieReviewSchema, editMovieReviewSchema, movieReviewListSchema } from "../validations/movieReviewSchemaValidations";
 const { Op } = require('sequelize');
 
-export const addMovieReviewService = async ({ movieId, userId, rating, comment }: {movieId: number, userId: number, rating: number, comment: string }) => {
+export const addMovieReviewService = async ({ movieId, rating, comment }: {movieId: number, rating: number, comment: string }, context: any) => {
+
+    const { user } = context;
 
     // validate schema
-    validate(addMovieReviewSchema, {movieId, userId, rating, comment});
+    validate(addMovieReviewSchema, {movieId, rating, comment});
 
     // find movie
     const movie = await Movies.findByPk(movieId);
@@ -18,13 +20,13 @@ export const addMovieReviewService = async ({ movieId, userId, rating, comment }
         throw new Error(errorConstants.MOVIE_DOES_NOT_EXIST);
     }
 
-    const user = await Users.findByPk(userId);
+    const userProfile = await Users.findByPk(user.id);
 
-    if (!user) {
+    if (!userProfile) {
         throw new Error(errorConstants.USER_NOT_FOUND);
     }
 
-    const review = Reviews.create({ movieId, userId, rating, comment });
+    const review = Reviews.create({ movieId, userId: user.id, rating, comment });
 
     return review || {};
 }
@@ -86,7 +88,7 @@ export const getMovieReviewList = async ({ movieId, page, perPage }: {movieId: n
   
   const startIndex = (page - 1) * perPage;
 
-  const userReview = await Reviews.findOne({
+  const userReview: any = await Reviews.findOne({
     where: {
       movieId: {
         [Op.eq]: movieId
@@ -103,11 +105,11 @@ export const getMovieReviewList = async ({ movieId, page, perPage }: {movieId: n
       movieId: {
         [Op.eq]: movieId
       },
-      userId: {
-        [Op.ne]: user?.id || null // exclude user's review from remaining reviews
+      id: {
+        [Op.ne]: userReview?.id || null // exclude user's review from remaining reviews
       }
     },
-    limit: perPage,
+    limit: (userReview) ? perPage - 1 : perPage,
     offset: startIndex
   });
 

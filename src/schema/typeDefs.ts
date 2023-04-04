@@ -55,23 +55,23 @@ export const typeDefs = `
 
   type Query {
     movies(limit: Int = 10, offset: Int = 0, search: String): MovieList,
-    movie(id: ID!): Movie
-    PaginatedReviews(movieId: Int!, page: Int!, perPage: Int!): PaginatedReview!
+    movie(id: Int!): Movie
+    reviews(movieId: Int!, page: Int!, perPage: Int!): PaginatedReview!
   }
 
   type Mutation {
     addMovie(name: String!, description: String!, director: String!, releaseDate: String!): Movie,
-    editMovie(id: ID!, name: String, description: String, director: String, releaseDate: String): editResponse
-    deleteMovie(id: ID!): DeleteResponse
+    editMovie(id: Int!, name: String, description: String, director: String, releaseDate: String): editResponse
+    deleteMovie(id: Int!): DeleteResponse
     
-    createReview(movieId: Int!, userId: Int!, rating: Int!, comment: String): Review!
+    createReview(movieId: Int!, rating: Int!, comment: String): Review!
     updateReview(id: Int!, rating: Int, comment: String): Review!
     deleteReview(id: Int!): DeleteResponse
 
 
     signUp(username: String!, email: String!, password: String!, firstName: String!, lastName: String!): User,
     login(email: String!, password: String!): Token,
-    changePassword(id: Int!, oldPassword: String!, newPassword: String!): editResponse
+    changePassword(oldPassword: String!, newPassword: String!): editResponse
   }
 `;
  

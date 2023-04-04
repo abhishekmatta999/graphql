@@ -5,7 +5,7 @@ The API is designed and deployed in format of resolvers query and mutation funct
 ## Requirements
 
 1. [NodeJS](https://nodejs.org/en/)
-2. [Postgre](https://www.npmjs.com/package/mongodb)
+2. [Postgre](https://www.npmjs.com/package/pg)
 3. [Typescript] (https://www.typescriptlang.org/)
 4. [Apollo Graphql] (https://www.apollographql.com/)
 
@@ -97,8 +97,8 @@ query getMovie($ID: ID!) {
 
 To fetch Movie reviews list
 ```
-query PaginatedReviews($movieId: Int!, $page: Int!, $perPage: Int!) {
-  PaginatedReviews(movieId: $movieId, page: $page, perPage: $perPage) {
+query reviews($movieId: Int!, $page: Int!, $perPage: Int!) {
+  reviews(movieId: $movieId, page: $page, perPage: $perPage) {
     total
     totalPages
     currentPage
@@ -150,11 +150,13 @@ mutation Login($email: String!, $password: String!) {
 
 To signup
 ```
-mutation {
-  signUp(username: "JohnDoe", email: "johndoe@example.com", password: "test") {
+mutation ($email: String!, $password: String!, $username: String!, $firstName: String!, $lastName: String!) {
+  signUp(username: $username, email: $email, password: $password, firstName: $firstName, lastName: $lastName) {
     id
     username
     email
+    firstName
+    lastName
   }
 }
 ```

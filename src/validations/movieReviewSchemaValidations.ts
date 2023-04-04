@@ -2,18 +2,12 @@ import { maxLengthErrorMessage, minLengthErrorMessage, typeErrorMessage } from "
 
 export const addMovieReviewSchema = {
     type: "object",
-    required: ["movieId", "userId", "rating", "comment"],
+    required: ["movieId", "rating", "comment"],
     properties: {
       movieId: {
         type: "integer",
         errorMessage: {
           type: typeErrorMessage("Movie ID")
-        }
-      },
-      userId: {
-        type: "integer",
-        errorMessage: {
-          type: typeErrorMessage("User ID")
         }
       },
       rating: {
@@ -30,6 +24,7 @@ export const addMovieReviewSchema = {
         type: "string",
         minLength: 8,
         maxLength: 100,
+        transform: ["trim"],
         errorMessage: {
             type: typeErrorMessage("Comment"),
             minLength: minLengthErrorMessage('Comment', 8),
@@ -65,6 +60,7 @@ export const editMovieReviewSchema = {
             type: "string",
             minLength: 8,
             maxLength: 100,
+            transform: ["trim"],
             errorMessage: {
                 type: typeErrorMessage("Comment"),
                 minLength: minLengthErrorMessage('Comment', 8),

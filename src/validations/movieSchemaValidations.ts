@@ -7,6 +7,7 @@ export const addMovieSchema = {
         type: "string", 
         minLength: 3, 
         maxLength: 50,
+        transform: ["trim"],
         errorMessage: {
             type: typeErrorMessage('Name'),
             minLength: minLengthErrorMessage('Name', 3),
@@ -17,6 +18,7 @@ export const addMovieSchema = {
             type: "string", 
             minLength: 8, 
             maxLength: 100, 
+            transform: ["trim"],
             errorMessage: {
                 type: typeErrorMessage('Description'),
                 minLength: minLengthErrorMessage('Description', 8),
@@ -27,6 +29,7 @@ export const addMovieSchema = {
             type: "string", 
             minLength: 3,
             maxLength: 100,
+            transform: ["trim"],
             errorMessage: {
                 type: typeErrorMessage('Director'),
                 minLength: minLengthErrorMessage('Director', 3),
@@ -34,6 +37,7 @@ export const addMovieSchema = {
             }
         },
         releaseDate: {
+            transform: ["trim"],
             type: "string", 
             format: "date",
         },
@@ -56,6 +60,7 @@ export const editMovieSchema = {
             type: "string", 
             minLength: 3, 
             maxLength: 50,
+            transform: ["trim"],
             errorMessage: {
                 type: typeErrorMessage('Name'),
                 minLength: minLengthErrorMessage('Name', 3),
@@ -66,6 +71,7 @@ export const editMovieSchema = {
                 type: "string", 
                 minLength: 8, 
                 maxLength: 100, 
+                transform: ["trim"],
                 errorMessage: {
                     type: typeErrorMessage('Description'),
                     minLength: minLengthErrorMessage('Description', 8),
@@ -76,6 +82,7 @@ export const editMovieSchema = {
                 type: "string", 
                 minLength: 3,
                 maxLength: 100,
+                transform: ["trim"],
                 errorMessage: {
                     type: typeErrorMessage('Director'),
                     minLength: minLengthErrorMessage('Director', 3),
@@ -85,9 +92,10 @@ export const editMovieSchema = {
             releaseDate: {
                 type: "string", 
                 format: "date",
+                transform: ["trim"],
             },
     },
-    required: ["name", "description", "director", "releaseDate", 'id'],
+    required: ['id'],
     additionalProperties: false,
 };
 
