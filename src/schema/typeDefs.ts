@@ -65,7 +65,7 @@ export const typeDefs = `
     deleteMovie(id: ID!): DeleteResponse
     
     createReview(movieId: Int!, userId: Int!, rating: Int!, comment: String): Review!
-    updateReview(id: Int!, movieId: Int, userId: Int, rating: Int, comment: String): Review!
+    updateReview(id: Int!, rating: Int, comment: String): Review!
     deleteReview(id: Int!): DeleteResponse
 
 

@@ -1,12 +1,17 @@
 import { errorConstants } from "../../constants/errorConstants";
+import { validate } from "../../lib/validator";
 import Movies from "../models/movies";
 import { Movie } from "../schema/types";
+import { addMovieSchema, deleteMovieSchema, editMovieSchema } from "../validations/movieSchemaValidations";
 const { Op } = require('sequelize');
 
 export const addMovieService = async (args: Movie, context: any) => {
     const { user } = context;
 
     let { releaseDate } = args;
+
+    // validate movie schema
+    validate(addMovieSchema, args);
 
     let date = new Date();
 
@@ -21,6 +26,9 @@ export const editMovieService = async (args: Movie, context: any) => {
     const { user } = context;
 
     let { releaseDate } = args;
+
+    // validate movie schema
+    validate(editMovieSchema, args);
 
     // find movie review
     const movie = await Movies.findOne({where: {
@@ -44,6 +52,9 @@ export const editMovieService = async (args: Movie, context: any) => {
 
 export const deletMovieService = async ({ id }: {id: number}, context: any) => {
     const { user } = context;
+
+    // validate schema
+    validate(deleteMovieSchema, {id});
 
     // find movie
     const movie = await Movies.findOne({where: {

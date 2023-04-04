@@ -2,15 +2,15 @@ import Users from "../models/users";
 import { SignupArgs, userType } from "../schema/types";
 import { getToken } from "../../lib/jwt-helper";
 import { comparePasswords, createEncryptedHash } from "../../lib/bcrypt-helper";
-import { validateEmail, validatePassWord } from "../validations/userValidations";
 import { errorConstants } from "../../constants/errorConstants";
+import { changePasswordSchema, loginSchema, signupSchema } from "../validations/userSchemaValidation";
+import { validate } from "../../lib/validator";
 
 export const signupUser = async (args: SignupArgs): Promise<any> => {
     const { email, password } = args;
 
-    if (!validateEmail(email)) {
-      throw new Error(errorConstants.INVALID_EMAIL);
-    }
+    // validate schema
+    validate(signupSchema, args);
   
     // Find user
     const user = await Users.findOne({
@@ -42,15 +42,8 @@ export const signupUser = async (args: SignupArgs): Promise<any> => {
 export const loginUser = async (args: { email: string, password: string }): Promise<{ token: string }> => {
     const { email, password } = args;
 
-    // validate email
-    if (!validateEmail(email)) {
-      throw new Error(errorConstants.INVALID_EMAIL);
-    }
-
-    // validate password
-    if (!validatePassWord(password)) {
-      throw new Error(errorConstants.INVALID_PASSWORD_PATTERN);
-    }
+    // validate schema
+    validate(loginSchema, args);
   
     // Find user by email
     const user = await Users.findOne({ where: { email } }) as any as userType;
@@ -82,10 +75,8 @@ export const loginUser = async (args: { email: string, password: string }): Prom
 export const changePassword = async ({ id, oldPassword, newPassword }: {id: number, oldPassword: string, newPassword: string}, context: any) => {
     const { user } = context;
 
-    // validate password
-    if (!validatePassWord(newPassword)) {
-      throw new Error(errorConstants.INVALID_PASSWORD_PATTERN);
-    }
+    // validate schema
+    validate(changePasswordSchema, {id, oldPassword, newPassword});
     
     // Retrieve the user by ID from the database
     const userProfile = await Users.findByPk(id) as any as userType;
