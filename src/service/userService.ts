@@ -1,7 +1,7 @@
 import Users from "../models/users";
 import { SignupArgs, userType } from "../schema/types";
-import { getToken } from "../../lib/jwt";
-import { comparePasswords, createEncryptedHash } from "../../lib/bcrypt";
+import { getToken } from "../../lib/jwt-helper";
+import { comparePasswords, createEncryptedHash } from "../../lib/bcrypt-helper";
 import { validateEmail, validatePassWord } from "../validations/userValidations";
 import { errorConstants } from "../../constants/errorConstants";
 
@@ -19,12 +19,12 @@ export const signupUser = async (args: SignupArgs): Promise<any> => {
       },
     });
 
-    // create hashed password
-    const hashedPassword = await createEncryptedHash(password);
-  
     if (user) {
       throw new Error('User with this email already exists');
     }
+
+    // create hashed password
+    const hashedPassword = await createEncryptedHash(password);
   
     // Create user
     const createdUser = await Users.create({ ...args, password: hashedPassword });

@@ -13,6 +13,8 @@ export const typeDefs = `
     username: String!
     email: String!
     password: String!
+    firstName: String!
+    lastName: String!
   }
 
   type MovieList {
@@ -67,7 +69,7 @@ export const typeDefs = `
     deleteReview(id: Int!): DeleteResponse
 
 
-    signUp(username: String!, email: String!, password: String!): User,
+    signUp(username: String!, email: String!, password: String!, firstName: String!, lastName: String!): User,
     login(email: String!, password: String!): Token,
     changePassword(id: Int!, oldPassword: String!, newPassword: String!): editResponse
   }

@@ -3,31 +3,53 @@ import Movies from "../models/movies";
 import { Movie } from "../schema/types";
 const { Op } = require('sequelize');
 
-export const addMovieService = async (args: Movie) => {
-    const movie = await Movies.create({ ...args });
+export const addMovieService = async (args: Movie, context: any) => {
+    const { user } = context;
+
+    let { releaseDate } = args;
+
+    let date = new Date();
+
+    if (releaseDate) date = new Date(releaseDate);
+
+    const movie = await Movies.create({ ...args, releaseDate: date, userId: user.id });
 
     return movie || {};
 }
 
-export const editMovieService = async (args: Movie) => {
+export const editMovieService = async (args: Movie, context: any) => {
+    const { user } = context;
+
+    let { releaseDate } = args;
+
     // find movie review
     const movie = await Movies.findOne({where: {
         id: args.id,
+        userId: user.id
     }});
 
     if (!movie) {
         throw new Error(errorConstants.MOVIE_DOES_NOT_EXIST);
     }
+
+    let date = new Date();
+
+    if (releaseDate) date = new Date(releaseDate);
    
     // update movie
-    await Movies.update({ name: args.name, description: args.description, director: args.director, releaseDate: args.releaseDate }, { where: { id: args.id }, returning: true });
+    await Movies.update({name: args.name, description: args.description, director: args.director, releaseDate: date}, { where: { id: args.id }, returning: true });
 
     return { success: true, message: 'successefully edited' };
 }
 
-export const deletMovieService = async ({ id }: {id: number}) => {
+export const deletMovieService = async ({ id }: {id: number}, context: any) => {
+    const { user } = context;
+
     // find movie
-    const movie = await Movies.findByPk(id);
+    const movie = await Movies.findOne({where: {
+        id,
+        userId: user.id
+    }});
 
     if (!movie) {
         throw new Error(errorConstants.MOVIE_DOES_NOT_EXIST);

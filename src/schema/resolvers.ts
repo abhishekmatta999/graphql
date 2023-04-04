@@ -28,21 +28,21 @@ export const resolvers = {
             // validate req
             validateRequest(context.user);
 
-            return addMovieService(ctx);
+            return addMovieService(ctx, context);
         },
 
         // edit movie
         editMovie: async (parent: any, ctx: Movie, context: any) => {
             // validate req
             validateRequest(context.user);
-            return editMovieService(ctx);
+            return editMovieService(ctx, context);
         },
 
         // delete movie
         deleteMovie: async (parent: any, ctx: any, context: any) => {
             // validate req
             validateRequest(context.user);
-            return deletMovieService(ctx);
+            return deletMovieService(ctx, context);
         },
 
         // create review

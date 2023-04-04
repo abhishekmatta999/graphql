@@ -1,6 +1,7 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../db";
-// const sequelize = new Sequelize("sqlite::memory:");
+import Movies from "./movies";
+import Users from "./users";
 
 export default class Reviews extends Model {}
 Reviews.init(
@@ -12,21 +13,44 @@ Reviews.init(
         },
         movieId: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            references: {
+              model: Movies,
+              key: "id",
+            },
         },
 
         userId: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            references: {
+              model: Users,
+              key: "id",
+            },
         },
         rating: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+                min: 1,
+                max: 5
+            }
         },
         comment: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+                len: [8, 100]
+            }
         },
     },
     { sequelize, modelName: "reviews" }
 );
+
+// Associate the Reviews model with the Users model
+Reviews.belongsTo(Users, { foreignKey: "userId" });
+
+// Associate the Reviews model with the Movies model
+Reviews.belongsTo(Movies, { foreignKey: "movieId" });
