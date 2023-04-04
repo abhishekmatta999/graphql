@@ -3,7 +3,7 @@ import { startStandaloneServer } from '@apollo/server/standalone';
 import { typeDefs } from './schema/typeDefs';
 import { resolvers } from './schema/resolvers';
 import * as db from "./db";
-import { validateToken } from '../lib/jwt';
+import { validateToken } from '../lib/jwt-helper';
 import { tokenType } from './schema/types';
 
 interface UserContext {
@@ -38,7 +38,7 @@ const run = async () => {
             const user = await validateToken(token);
 
             // add the user to the context
-            const context = { user };
+            const context = { user: user || null };
             return context;
         },
     });

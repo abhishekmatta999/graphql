@@ -1,10 +1,15 @@
 import { errorConstants } from "../../constants/errorConstants";
+import { validate } from "../../lib/validator";
 import Movies from "../models/movies";
 import Reviews from "../models/reviews";
 import Users from "../models/users";
+import { addMovieReviewSchema, deleteMovieReviewSchema, editMovieReviewSchema, movieReviewListSchema } from "../validations/movieReviewSchemaValidations";
 const { Op } = require('sequelize');
 
 export const addMovieReviewService = async ({ movieId, userId, rating, comment }: {movieId: number, userId: number, rating: number, comment: string }) => {
+
+    // validate schema
+    validate(addMovieReviewSchema, {movieId, userId, rating, comment});
 
     // find movie
     const movie = await Movies.findByPk(movieId);
@@ -24,9 +29,12 @@ export const addMovieReviewService = async ({ movieId, userId, rating, comment }
     return review || {};
 }
 
-export const editReviewService = async ({ id, movieId, userId, rating, comment }: {id: number, movieId: number, userId: number, rating: number, comment: string }, context: any) => {
+export const editReviewService = async ({ id, rating, comment }: {id: number, rating: number, comment: string }, context: any) => {
 
     const { user } = context;
+
+    // validate schema
+    validate(editMovieReviewSchema, { id, rating, comment });
 
     // find movie review
     const review = await Reviews.findOne({where: {
@@ -39,11 +47,14 @@ export const editReviewService = async ({ id, movieId, userId, rating, comment }
         throw new Error(errorConstants.REVEIW_DOES_NOT_EXIST);
     }
 
-    return review.update({ movieId, userId, rating, comment });
+    return review.update({ rating, comment });
 }
 
 export const deletMovieReviewService = async ({ id }: {id: number}, context: any) => {
     const { user } = context;
+
+    // validate schema
+    validate(deleteMovieReviewSchema, { id});
 
     // find movie review
     const review = await Reviews.findOne({where: {
@@ -69,6 +80,10 @@ export const deletMovieReviewService = async ({ id }: {id: number}, context: any
  */
 export const getMovieReviewList = async ({ movieId, page, perPage }: {movieId: number, page: number, perPage: number}, context: any) => {
   const { user } = context;
+
+  // validate schema
+  validate(movieReviewListSchema, { movieId, page, perPage });
+  
   const startIndex = (page - 1) * perPage;
 
   const userReview = await Reviews.findOne({

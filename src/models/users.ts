@@ -1,6 +1,5 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "../db";
-// const sequelize = new Sequelize("sqlite::memory:");
 
 export default class Users extends Model {}
 Users.init(
@@ -10,17 +9,45 @@ Users.init(
             autoIncrement: true,
             primaryKey: true
         },
+        firstName: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+                len: [3, 50]
+            }
+        },
+        lastName: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+                len: [3, 50]
+            }
+        },
         username: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+                len: [3, 50]
+            }
         },
         email: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            validate: {
+                isEmail: true,
+                notEmpty: true
+            }
         },
         password: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+                len: [8, 100]
+            }
         },
     },
     { sequelize, modelName: "users" }

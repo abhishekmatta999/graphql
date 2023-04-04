@@ -1,7 +1,6 @@
-import { GraphQLError } from "graphql";
 import * as jwt from "jsonwebtoken";
 import { errorConstants } from "../constants/errorConstants";
-import { userType } from "../src/schema/types";
+import Users from "../src/models/users";
 
 // secret key to be added in env file
 const SECRET_KEY = "SECRET_KEY";
@@ -9,9 +8,7 @@ const SECRET_KEY = "SECRET_KEY";
 /**
  * get jwt token
  */
-export const getToken = (user: userType): string => {
-    const {id, email} = user;
-
+export const getToken = ({id, email}: {id: number, email: string}): string => {
     // create a JWT token with user's ID and email
     return jwt.sign({id, email}, SECRET_KEY);
 }
@@ -23,22 +20,29 @@ export const getToken = (user: userType): string => {
  */
 export const validateToken = async (token: string): Promise<any> => {
     try {
-      if (!token) {
+      if (!token || token == '') {
         return null;
       }
+
+      token = token.split(' ')[1];
       
       // decode token
       const decoded = await jwt.verify(token, SECRET_KEY) as { id: number; email: string };
     
       // check for the decoded id or email
       if (!decoded.id || !decoded.email) {
-        throw new GraphQLError('User is not authenticated', {
-          extensions: {
-          code: 'UNAUTHENTICATED',
-          http: { status: 401 },
-          },
-        });
+        throw new Error('User is not authenticated');
       }
+
+      const user = await Users.findOne({
+        where: {
+          email: decoded.email,
+          id: decoded.id
+        },
+      });
+
+      // if user not found
+      if (!user) throw new Error('You must be logged in')
     
       return { id: decoded.id, email: decoded.email };
     } catch (error: any) {
