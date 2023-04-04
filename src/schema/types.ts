@@ -1,4 +1,4 @@
-export interface Movie {
+export interface IMovie {
     id: string;
     name: string;
     description?: string;
@@ -6,7 +6,7 @@ export interface Movie {
     releaseDate?: string;
 }
   
-export interface Review {
+export interface IReview {
     id: number;
     movieId: number;
     userId?: number;
@@ -15,30 +15,30 @@ export interface Review {
     createdAt: Date;
 }
   
-export interface SignupArgs {
+export interface ISignupArgs {
     userName: string;
     email: string;
     password: string;
 }
 
-export interface loginType {
+export interface ILoginType {
     email: string;
     password: string;
 }
 
-export interface userType {
+export interface IUserType {
     id: number;
     userName: string;
     email: string;
     password: string;
 }
 
-export interface tokenType {
+export interface ITokenType {
     id: number;
     email: string;
 }
 
-export interface MovieFilterInput {
+export interface IMovieFilterInput {
     name: String
     director: String
   }

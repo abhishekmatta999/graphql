@@ -1,11 +1,12 @@
 import { errorConstants } from "../../constants/errorConstants";
 import { validate } from "../../lib/validator";
 import Movies from "../models/movies";
-import { Movie } from "../schema/types";
+import Reviews from "../models/reviews";
+import { IMovie } from "../schema/types";
 import { addMovieSchema, deleteMovieSchema, editMovieSchema } from "../validations/movieSchemaValidations";
 const { Op } = require('sequelize');
 
-export const addMovieService = async (args: Movie, context: any) => {
+export const addMovieService = async (args: IMovie, context: any) => {
     const { user } = context;
 
     let { releaseDate } = args;
@@ -22,7 +23,7 @@ export const addMovieService = async (args: Movie, context: any) => {
     return movie || {};
 }
 
-export const editMovieService = async (args: Movie, context: any) => {
+export const editMovieService = async (args: IMovie, context: any) => {
     const { user } = context;
 
     let { releaseDate } = args;
@@ -65,6 +66,11 @@ export const deletMovieService = async ({ id }: {id: number}, context: any) => {
     if (!movie) {
         throw new Error(errorConstants.MOVIE_DOES_NOT_EXIST);
     }
+    
+    // delete reviews
+    await Reviews.destroy({where: {
+        movieId: id
+    }});
 
     // delet movie
     await movie.destroy();

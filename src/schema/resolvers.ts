@@ -2,7 +2,7 @@ import { GraphQLError } from "graphql";
 import { addMovieService, deletMovieService, editMovieService, getMovieById, getMoviesList } from "../service/movieService";
 import { addMovieReviewService, deletMovieReviewService, editReviewService, getMovieReviewList } from "../service/reviewMovieService";
 import { changePassword, loginUser, signupUser } from "../service/userService";
-import { Movie } from "./types";
+import { IMovie } from "./types";
 
 /**
  * validate user id authenticated or not
@@ -24,7 +24,7 @@ const validateRequest = (user: any) => {
 export const resolvers = {
     Mutation: {
         // create a new movie
-        addMovie: async (parent: any, ctx: Movie, context: any) => {
+        addMovie: async (parent: any, ctx: IMovie, context: any) => {
             // validate req
             validateRequest(context.user);
 
@@ -32,7 +32,7 @@ export const resolvers = {
         },
 
         // edit movie
-        editMovie: async (parent: any, ctx: Movie, context: any) => {
+        editMovie: async (parent: any, ctx: IMovie, context: any) => {
             // validate req
             validateRequest(context.user);
             return editMovieService(ctx, context);
@@ -49,7 +49,7 @@ export const resolvers = {
         createReview: (parent: any, args: any, context: any) => {
             // validate req
             validateRequest(context.user);
-            return addMovieReviewService(args);
+            return addMovieReviewService(args, context);
         },
       
         // update review
@@ -102,7 +102,7 @@ export const resolvers = {
 
 
         // paginated reveiw list for movie
-        PaginatedReviews: async (parent: any, args: any, context: any) => {
+        reviews: async (parent: any, args: any, context: any) => {
             // validate req
             validateRequest(context.user);
             return getMovieReviewList(args, context);

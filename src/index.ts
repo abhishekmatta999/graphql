@@ -4,10 +4,10 @@ import { typeDefs } from './schema/typeDefs';
 import { resolvers } from './schema/resolvers';
 import * as db from "./db";
 import { validateToken } from '../lib/jwt-helper';
-import { tokenType } from './schema/types';
+import { ITokenType } from './schema/types';
 
 interface UserContext {
-    user: tokenType;
+    user: ITokenType;
 }
 
 const run = async () => {
