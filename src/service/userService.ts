@@ -89,7 +89,7 @@ export const changePassword = async ({ oldPassword, newPassword }: {oldPassword:
 
     // if password is not valid, throw error
     if (!isPasswordValid) {
-      throw new Error(errorConstants.INVALID_PASSWORD);
+      throw new Error(errorConstants.INCORRECT_OLD_PASSWORD);
     }
 
     // create hashed password

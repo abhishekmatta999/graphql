@@ -8,5 +8,6 @@ export const errorConstants = {
     REVEIW_DOES_NOT_EXIST: 'Review does not exists',
     MOVIE_DOES_NOT_EXIST: 'Movie does not exists',
     USER_NOT_FOUND: 'User not found',
-    INVALID_LOGIN_CREDENTIALS: 'Invalid login credentials'
+    INVALID_LOGIN_CREDENTIALS: 'Invalid login credentials',
+    INCORRECT_OLD_PASSWORD: 'Invalid old password',
 }

@@ -21,7 +21,10 @@ const run = async () => {
     const server = new ApolloServer<UserContext>({
         typeDefs,
         resolvers,
-        
+        formatError: (err) => {
+            // only return the error message
+            return { message: err.message }
+        },
     });
     
     // Passing an ApolloServer instance to the `startStandaloneServer` function:
