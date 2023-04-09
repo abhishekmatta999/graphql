@@ -10,4 +10,5 @@ export const errorConstants = {
     USER_NOT_FOUND: 'User not found',
     INVALID_LOGIN_CREDENTIALS: 'Invalid login credentials',
     INCORRECT_OLD_PASSWORD: 'Invalid old password',
+    OLD_PASSWORD_AND_NEW_PASSWORD_SHOULD_NOT_BE_SAME: 'Old password and new password should not be same',
 }

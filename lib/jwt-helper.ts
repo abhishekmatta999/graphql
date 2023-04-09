@@ -1,6 +1,7 @@
 import * as jwt from "jsonwebtoken";
 import { errorConstants } from "../constants/errorConstants";
 import Users from "../src/models/users";
+import { PrismaClient } from '@prisma/client';
 
 // secret key to be added in env file
 const SECRET_KEY = "SECRET_KEY";
@@ -18,7 +19,7 @@ export const getToken = ({id, email}: {id: number, email: string}): string => {
  * @param token 
  * @returns decoded token
  */
-export const validateToken = async (token: string): Promise<any> => {
+export const validateToken = async (token: string, prisma: PrismaClient): Promise<any> => {
     try {
       if (!token || token == '') {
         return null;
@@ -34,10 +35,17 @@ export const validateToken = async (token: string): Promise<any> => {
         throw new Error('User is not authenticated');
       }
 
-      const user = await Users.findOne({
+      // const user = await Users.findOne({
+      //   where: {
+      //     email: decoded.email,
+      //     id: decoded.id
+      //   },
+      // });
+
+      const user = await prisma.users.findFirst({
         where: {
           email: decoded.email,
-          id: decoded.id
+          id: decoded.id,
         },
       });
 

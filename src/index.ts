@@ -2,19 +2,18 @@ import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
 import { typeDefs } from './schema/typeDefs';
 import { resolvers } from './schema/resolvers';
-import * as db from "./db";
 import { validateToken } from '../lib/jwt-helper';
 import { ITokenType } from './schema/types';
+import { PrismaClient } from '@prisma/client';
 
 interface UserContext {
     user: ITokenType;
+    prisma: PrismaClient;
 }
 
-const run = async () => {
-    // connection with postgresql
-    db.connect();
-    db.sequelize.sync();
+const prisma = new PrismaClient();
 
+const run = async () => {
 
     // The ApolloServer constructor requires two parameters: your schema
     // definition and your set of resolvers.
@@ -38,10 +37,13 @@ const run = async () => {
             const token = req.headers.authorization || '';
         
             // try to retrieve a user with the token
-            const user = await validateToken(token);
+            const user = await validateToken(token, prisma);
 
             // add the user to the context
-            const context = { user: user || null };
+            const context = { 
+                user: user || null,
+                prisma
+            };
             return context;
         },
     });

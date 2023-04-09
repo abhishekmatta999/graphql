@@ -68,12 +68,12 @@ export const resolvers = {
 
         // user signup
         signUp: async (parent: any, ctx: any, context: any) => {
-            return signupUser(ctx);
+            return signupUser(ctx, context);
         },
 
         // user login
         login: async (parent: any, ctx: any, context: any) => {
-            return loginUser(ctx);
+            return loginUser(ctx, context);
         },
 
 
@@ -90,14 +90,14 @@ export const resolvers = {
         movies: async (parent: any, args: any, context: any) => {
             // validate req
             validateRequest(context.user);
-            return getMoviesList(args); // return the paginated movie list with the total count
+            return getMoviesList(args, context); // return the paginated movie list with the total count
         },
 
         // fetch movie by id
         movie: async (parent: any, { id }: { id: number }, context: any) => {
             // validate req
             validateRequest(context.user);
-            return getMovieById({ id });
+            return getMovieById({ id }, context);
         },
 
 

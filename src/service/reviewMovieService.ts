@@ -1,76 +1,90 @@
 import { errorConstants } from "../../constants/errorConstants";
 import { validate } from "../../lib/validator";
-import Movies from "../models/movies";
-import Reviews from "../models/reviews";
-import Users from "../models/users";
 import { addMovieReviewSchema, deleteMovieReviewSchema, editMovieReviewSchema, movieReviewListSchema } from "../validations/movieReviewSchemaValidations";
-const { Op } = require('sequelize');
 
-export const addMovieReviewService = async ({ movieId, rating, comment }: {movieId: number, rating: number, comment: string }, context: any) => {
+export const addMovieReviewService = async ({ movieId, rating, comment }: { movieId: number, rating: number, comment: string }, context: any) => {
 
-    const { user } = context;
+    const { user, prisma } = context;
 
     // validate schema
-    validate(addMovieReviewSchema, {movieId, rating, comment});
+    validate(addMovieReviewSchema, { movieId, rating, comment });
 
     // find movie
-    const movie = await Movies.findByPk(movieId);
+    const movie = await prisma.movies.findUnique({
+      where: { id: movieId }
+    });
 
     if (!movie) {
-        throw new Error(errorConstants.MOVIE_DOES_NOT_EXIST);
+      throw new Error(errorConstants.MOVIE_DOES_NOT_EXIST);
     }
 
-    const userProfile = await Users.findByPk(user.id);
+    const userProfile = await prisma.users.findUnique({
+      where: { id: user.id }
+    });
 
     if (!userProfile) {
-        throw new Error(errorConstants.USER_NOT_FOUND);
+      throw new Error(errorConstants.USER_NOT_FOUND);
     }
 
-    const review = Reviews.create({ movieId, userId: user.id, rating, comment });
+    const review = await prisma.reviews.create({
+      data: {
+        movieId,
+        userId: user.id,
+        rating,
+        comment
+      }
+    });
 
     return review || {};
 }
 
-export const editReviewService = async ({ id, rating, comment }: {id: number, rating: number, comment: string }, context: any) => {
+export const editReviewService = async ({ id, rating, comment }: { id: number, rating: number, comment: string }, context: any) => {
 
-    const { user } = context;
+    const { user, prisma } = context;
 
     // validate schema
     validate(editMovieReviewSchema, { id, rating, comment });
 
     // find movie review
-    const review = await Reviews.findOne({where: {
+    const review = await prisma.reviews.findOne({
+      where: {
         id,
         userId: user.id
-    }});
-   
+      }
+    });
+
     // if review not present throw error.
     if (!review) {
-        throw new Error(errorConstants.REVEIW_DOES_NOT_EXIST);
+      throw new Error(errorConstants.REVEIW_DOES_NOT_EXIST);
     }
 
-    return review.update({ rating, comment });
+    return prisma.reviews.update({
+      where: { id },
+      data: { rating, comment }
+    });
 }
 
-export const deletMovieReviewService = async ({ id }: {id: number}, context: any) => {
-    const { user } = context;
+export const deletMovieReviewService = async ({ id }: { id: number }, context: any) => {
+    const { user, prisma } = context;
 
     // validate schema
-    validate(deleteMovieReviewSchema, { id});
+    validate(deleteMovieReviewSchema, { id });
 
     // find movie review
-    const review = await Reviews.findOne({where: {
+    const review = await prisma.reviews.findOne({
+      where: {
         id,
         userId: user.id
-    }});
+      }
+    });
 
     // if review not present throw error.
     if (!review) {
-        throw new Error(errorConstants.REVEIW_DOES_NOT_EXIST);
+      throw new Error(errorConstants.REVEIW_DOES_NOT_EXIST);
     }
 
-    // delet review
-    await review.destroy();
+    // delete review
+    await prisma.reviews.delete({ where: { id } });
 
     return { success: true };
 }
@@ -81,36 +95,30 @@ export const deletMovieReviewService = async ({ id }: {id: number}, context: any
  * @returns list of review per movie
  */
 export const getMovieReviewList = async ({ movieId, page, perPage }: {movieId: number, page: number, perPage: number}, context: any) => {
-  const { user } = context;
+  const { user, prisma } = context;
 
   // validate schema
   validate(movieReviewListSchema, { movieId, page, perPage });
-  
+
   const startIndex = (page - 1) * perPage;
 
-  const userReview: any = await Reviews.findOne({
+  const userReview = await prisma.reviews.findFirst({
     where: {
-      movieId: {
-        [Op.eq]: movieId
-      },
-      userId: {
-        [Op.eq]: user?.id || null // set to null if user is not logged in
-      }
+      movieId: movieId,
+      userId: user?.id || null // set to null if user is not logged in
     },
-    offset: startIndex
+    skip: startIndex
   });
 
-  let remainingReviews = await Reviews.findAll({
+  let remainingReviews = await prisma.reviews.findMany({
     where: {
-      movieId: {
-        [Op.eq]: movieId
-      },
+      movieId: movieId,
       id: {
-        [Op.ne]: userReview?.id || null // exclude user's review from remaining reviews
+        not: userReview?.id || null // exclude user's review from remaining reviews
       }
     },
-    limit: (userReview) ? perPage - 1 : perPage,
-    offset: startIndex
+    take: (userReview) ? perPage - 1 : perPage,
+    skip: startIndex
   });
 
   if (userReview) {
@@ -118,11 +126,9 @@ export const getMovieReviewList = async ({ movieId, page, perPage }: {movieId: n
     remainingReviews.unshift(userReview);
   }
 
-  const total = await Reviews.count({
+  const total = await prisma.reviews.count({
     where: {
-      movieId: {
-        [Op.eq]: movieId
-      }
+      movieId: movieId
     }
   });
 

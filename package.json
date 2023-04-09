@@ -7,13 +7,16 @@
     "compile": "tsc",
     "copy": "cp .env dist/.env",
     "start": "tsc && npm run copy && node ./dist/src/index.js",
-    "dev": "nodemon src/index.ts"
+    "dev": "ts-node-dev --respawn --transpileOnly src/server.ts",
+    "prisma": "npx prisma",
+    "migrate": "npx prisma migrate dev"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@apollo/server": "^4.5.0",
+    "@prisma/client": "^4.12.0",
     "@types/jsonwebtoken": "^9.0.1",
     "ajv": "^8.12.0",
     "ajv-errors": "^3.0.0",
