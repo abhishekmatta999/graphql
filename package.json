@@ -7,7 +7,6 @@
     "compile": "tsc",
     "copy": "cp .env dist/.env",
     "start": "tsc && npm run copy && node ./dist/src/index.js",
-    "dev": "ts-node-dev --respawn --transpileOnly src/server.ts",
     "prisma": "npx prisma",
     "migrate": "npx prisma migrate dev"
   },

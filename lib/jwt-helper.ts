@@ -1,6 +1,5 @@
 import * as jwt from "jsonwebtoken";
 import { errorConstants } from "../constants/errorConstants";
-import Users from "../src/models/users";
 import { PrismaClient } from '@prisma/client';
 
 // secret key to be added in env file

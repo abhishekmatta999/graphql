@@ -5,6 +5,8 @@ import { resolvers } from './schema/resolvers';
 import { validateToken } from '../lib/jwt-helper';
 import { ITokenType } from './schema/types';
 import { PrismaClient } from '@prisma/client';
+import * as dotenv from 'dotenv';
+import path from 'path';
 
 interface UserContext {
     user: ITokenType;
@@ -14,6 +16,12 @@ interface UserContext {
 const prisma = new PrismaClient();
 
 const run = async () => {
+
+    // env path
+    const envPath = path.resolve(__dirname, '..', '.env');
+
+    // initialise dotenv
+    dotenv.config({ path: envPath });
 
     // The ApolloServer constructor requires two parameters: your schema
     // definition and your set of resolvers.
