@@ -6,8 +6,9 @@ The API is designed and deployed in format of resolvers query and mutation funct
 
 1. [NodeJS](https://nodejs.org/en/)
 2. [Postgre](https://www.npmjs.com/package/pg)
-3. [Typescript] (https://www.typescriptlang.org/)
-4. [Apollo Graphql] (https://www.apollographql.com/)
+3. [Typescript](https://www.typescriptlang.org/)
+4. [Apollo Graphql](https://www.apollographql.com/)
+5. [Prisma](https://www.prisma.io/)
 
 ## Recommended IDE
 
@@ -53,6 +54,9 @@ The following steps are required for setup:
     - Keep password `hrhk`
 3. Clone this git repository and go to root directory.
 4. Install model modules: `npm install`
+
+## Running the migration
+run the command `npm run migrate`
 
 ## Running the API
 
