@@ -46,7 +46,7 @@ export const editReviewService = async ({ id, rating, comment }: { id: number, r
     validate(editMovieReviewSchema, { id, rating, comment });
 
     // find movie review
-    const review = await prisma.reviews.findOne({
+    const review = await prisma.reviews.findFirst({
       where: {
         id,
         userId: user.id
@@ -71,7 +71,7 @@ export const deletMovieReviewService = async ({ id }: { id: number }, context: a
     validate(deleteMovieReviewSchema, { id });
 
     // find movie review
-    const review = await prisma.reviews.findOne({
+    const review = await prisma.reviews.findFirst({
       where: {
         id,
         userId: user.id
@@ -108,20 +108,20 @@ export const getMovieReviewList = async ({ movieId, page, perPage }: {movieId: n
       userId: user?.id || null // set to null if user is not logged in
     },
     skip: startIndex
-  });
+  }) ?? {};
+
+  const whereNot = userReview?.id ? { id: userReview?.id } : {};
 
   let remainingReviews = await prisma.reviews.findMany({
     where: {
       movieId: movieId,
-      id: {
-        not: userReview?.id || null // exclude user's review from remaining reviews
-      }
+      NOT: whereNot
     },
-    take: (userReview) ? perPage - 1 : perPage,
+    take: userReview?.id ? perPage - 1 : perPage,
     skip: startIndex
   });
 
-  if (userReview) {
+  if (userReview && userReview?.id) {
     // Add user's review to beginning of reviews array
     remainingReviews.unshift(userReview);
   }

@@ -34,13 +34,6 @@ export const validateToken = async (token: string, prisma: PrismaClient): Promis
         throw new Error('User is not authenticated');
       }
 
-      // const user = await Users.findOne({
-      //   where: {
-      //     email: decoded.email,
-      //     id: decoded.id
-      //   },
-      // });
-
       const user = await prisma.users.findFirst({
         where: {
           email: decoded.email,
